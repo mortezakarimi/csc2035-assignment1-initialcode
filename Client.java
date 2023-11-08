@@ -189,8 +189,9 @@ public class Client {
             ObjectInputStream is = new ObjectInputStream(in);
             Segment dataSeg = (Segment) is.readObject();
             System.out.println("SENDER: ACK sq= " + dataSeg.getSq() + " RECIEVED.");
-            return dataSeg.getType() == SegmentType.Ack && dataSeg.getSq() == i;
+            return dataSeg.getType() == SegmentType.Ack && dataSeg.getSq() == i % 2;
         } catch (SocketTimeoutException e) {
+            System.out.println("SENDER: ACK not RECEIVED.");
             return false;
         }
     }
@@ -206,7 +207,7 @@ public class Client {
         segment.setPayLoad(segmentString);
         segment.setSize(segmentString.length());
         segment.setChecksum(checksum(segmentString, isCorrupted));
-        segment.setSq(i);
+        segment.setSq(i % 2);
         ByteArrayOutputStream bos = new ByteArrayOutputStream(4);
         ObjectOutputStream outputStream = new ObjectOutputStream(bos);
         outputStream.writeObject(segment);

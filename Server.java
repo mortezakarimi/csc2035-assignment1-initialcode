@@ -248,18 +248,19 @@ public class Server {
                 os.writeObject(ackSeg);
                 byte[] dataAck = outputStream.toByteArray();
                 DatagramPacket replyPacket = new DatagramPacket(dataAck, dataAck.length, IPAddress, port);
-                if (!isLost(loss)) {
+                boolean lost = isLost(loss);
+                System.out.println("SERVER: LOST" + lost);
+                if (!lost) {
                     /* Send the Ack segment */
                     socket.send(replyPacket);
                 }
-                if (lastSegment < dataSeg.getSq()) {
-
+                if (lastSegment == dataSeg.getSq()) {
+                    System.out.println("SERVER: Duplicate sequence number received. resending ack");
+                } else {
                     /* write the payload of the data segment to output file */
                     myWriter.write(dataSeg.getPayLoad());
                     currentTotal = currentTotal + dataSeg.getSize();
                     lastSegment = dataSeg.getSq();
-                } else {
-                    System.out.println("SERVER: Duplicate sequence number received. resending ack");
                 }
                 System.out.println("\t\t>>>>>>> NETWORK: ACK is sent successfully <<<<<<<<<");
                 System.out.println("------------------------------------------------");
